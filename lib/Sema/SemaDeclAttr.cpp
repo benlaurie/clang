@@ -1252,6 +1252,46 @@ static void handleReturnsNonNullAttr(Sema &S, Decl *D,
                                Attr.getAttributeSpellingListIndex()));
 }
 
+static bool attrBoolArgCheck(Sema &S, QualType T, const AttributeList &Attr,
+			     SourceRange AttrParmRange,
+			     SourceRange TypeRange,
+			     bool isReturnValue = false) {
+  if (!T->isIntegralOrEnumerationType()) {
+    S.Diag(Attr.getLoc(), isReturnValue
+                              ? diag::warn_attribute_return_int_only
+                              : diag::warn_attribute_int_only)
+        << Attr.getName() << AttrParmRange << TypeRange;
+    return false;
+  }
+  return true;
+}
+
+static void handleReturnsBoolAttr(Sema &S, Decl *D,
+                                     const AttributeList &Attr) {
+  QualType ResultType = getFunctionOrMethodResultType(D);
+  SourceRange SR = getFunctionOrMethodResultSourceRange(D);
+  if (!attrBoolArgCheck(S, ResultType, Attr, SourceRange(), SR,
+			/* isReturnValue */ true))
+    return;
+
+  D->addAttr(::new (S.Context)
+            ReturnsBoolAttr(Attr.getRange(), S.Context,
+			    Attr.getAttributeSpellingListIndex()));
+}
+
+static void handleReturnsTristateAttr(Sema &S, Decl *D,
+                                     const AttributeList &Attr) {
+  QualType ResultType = getFunctionOrMethodResultType(D);
+  SourceRange SR = getFunctionOrMethodResultSourceRange(D);
+  if (!attrBoolArgCheck(S, ResultType, Attr, SourceRange(), SR,
+			/* isReturnValue */ true))
+    return;
+
+  D->addAttr(::new (S.Context)
+            ReturnsTristateAttr(Attr.getRange(), S.Context,
+			    Attr.getAttributeSpellingListIndex()));
+}
+
 static void handleAssumeAlignedAttr(Sema &S, Decl *D,
                                     const AttributeList &Attr) {
   Expr *E = Attr.getArgAsExpr(0),
@@ -4607,6 +4647,12 @@ static void ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D,
     break;
   case AttributeList::AT_ReturnsNonNull:
     handleReturnsNonNullAttr(S, D, Attr);
+    break;
+  case AttributeList::AT_ReturnsBool:
+    handleReturnsBoolAttr(S, D, Attr);
+    break;
+  case AttributeList::AT_ReturnsTristate:
+    handleReturnsTristateAttr(S, D, Attr);
     break;
   case AttributeList::AT_AssumeAligned:
     handleAssumeAlignedAttr(S, D, Attr);

@@ -12,6 +12,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+//TMP
+#include <iostream>
+
 #include "clang/Sema/SemaInternal.h"
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/CharUnits.h"
@@ -1117,6 +1120,16 @@ static void CheckNonNullArgument(Sema &S,
                                  SourceLocation CallSiteLoc) {
   if (CheckNonNullExpr(S, ArgExpr))
     S.Diag(CallSiteLoc, diag::warn_null_arg) << ArgExpr->getSourceRange();
+}
+
+/// Checks if the given expression evaluates to a legal bool (i.e. 0 or 1)
+///
+/// \brief Returns false if the value does not evaluate to 0 or 1.
+static bool CheckBoolExpr(Sema &S, const Expr *Expr, llvm::APSInt &value) {
+  if (!Expr->EvaluateAsInt(value, S.Context))
+    return true;
+
+  return value == 0 || value == 1;
 }
 
 bool Sema::GetFormatNSStringIdx(const FormatAttr *Format, unsigned &Idx) {
@@ -5560,6 +5573,13 @@ Sema::CheckReturnValExpr(Expr *RetValExp, QualType lhsType,
     Diag(ReturnLoc, diag::warn_null_ret)
       << (isObjCMethod ? 1 : 0) << RetValExp->getSourceRange();
 
+  llvm::APSInt value;
+  if (Attrs && hasSpecificAttr<ReturnsBoolAttr>(*Attrs) &&
+      !CheckBoolExpr(*this, RetValExp, value))
+    Diag(ReturnLoc, diag::warn_bool_ret)
+      << value.toString(10) << (isObjCMethod ? 1 : 0)
+      << RetValExp->getSourceRange();
+
   // C++11 [basic.stc.dynamic.allocation]p4:
   //   If an allocation function declared with a non-throwing
   //   exception-specification fails to allocate storage, it shall return
@@ -6642,6 +6662,33 @@ void CheckImplicitConversion(Sema &S, Expr *E, QualType T,
 
   // Diagnose implicit casts to bool.
   if (Target->isSpecificBuiltinType(BuiltinType::Bool)) {
+    //std::cerr << "Pow\n";
+    //E->dump();
+    if (isa<CallExpr>(E)) {
+      FunctionDecl *fn = cast<FunctionDecl>(cast<CallExpr>(E)->getCalleeDecl());
+      // FIXNE: handle other possibilities, e.g (x ? f : g)(y)
+      if (!fn)
+	return;
+      //fn->dump();
+      const AttrVec &Attrs = fn->getAttrs();
+      if (hasSpecificAttr<ReturnsTristateAttr>(Attrs)) {
+	//std::cerr << "Oops\n";
+	DiagnoseImpCast(S, E, T, CC,
+			diag::warn_impcast_tristate_to_bool);
+	S.Diag(fn->getLocation(), diag::note_entity_declared_at)
+	    << fn->getDeclName();
+	return;
+      }
+      if (!hasSpecificAttr<ReturnsBoolAttr>(Attrs)) {
+	//std::cerr << "Oops\n";
+	DiagnoseImpCast(S, E, T, CC,
+			diag::warn_impcast_nonbool_to_bool);
+	S.Diag(fn->getLocation(), diag::note_entity_declared_at)
+	    << fn->getDeclName();
+	return;
+      }
+      // FIXME: warn if return type is not bool.
+    }
     if (isa<StringLiteral>(E))
       // Warn on string literal to bool.  Checks for string literals in logical
       // and expressions, for instance, assert(0 && "error here"), are

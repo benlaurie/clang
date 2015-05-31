@@ -128,6 +128,10 @@ def TestAfterDivZeroChecker : Checker<"TestAfterDivZero">,
   HelpText<"Check for division by variable that is later compared against 0. Either the comparison is useless or there is division by zero.">,
   DescFile<"TestAfterDivZeroChecker.cpp">;
 
+def ReturnBoolChecker : Checker<"ReturnBool">,
+  HelpText<"Check for boolean returns">,
+  DescFile<"ReturnBoolChecker.cpp">;
+
 } // end "alpha.core"
 
 //===----------------------------------------------------------------------===//

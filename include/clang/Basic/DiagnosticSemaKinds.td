@@ -2014,6 +2014,12 @@ def err_attribute_argument_out_of_bounds : Error<
   "%0 attribute parameter %1 is out of bounds">;
 def err_attribute_uuid_malformed_guid : Error<
   "uuid attribute contains a malformed GUID">;
+def warn_attribute_int_only : Warning<
+  "%0 attribute only applies to integer arguments">,
+  InGroup<IgnoredAttributes>;
+def warn_attribute_return_int_only : Warning<
+  "%0 attribute only applies to return values that are integers">,
+  InGroup<IgnoredAttributes>;
 def warn_attribute_pointers_only : Warning<
   "%0 attribute only applies to pointer arguments">,
   InGroup<IgnoredAttributes>;
@@ -2561,6 +2567,12 @@ def warn_impcast_literal_float_to_integer : Warning<
 def warn_impcast_string_literal_to_bool : Warning<
   "implicit conversion turns string literal into bool: %0 to %1">,
   InGroup<StringConversion>, DefaultIgnore;
+def warn_impcast_tristate_to_bool : Warning<
+  "implicit conversion turns tristate into bool: %0 to %1">,
+  InGroup<TristateConversion>, DefaultIgnore;
+def warn_impcast_nonbool_to_bool : Warning<
+  "implicit conversion turns non-bool into bool: %0 to %1">,
+  InGroup<TristateConversion>, DefaultIgnore;
 def warn_impcast_different_enum_types : Warning<
   "implicit conversion from enumeration type %0 to different enumeration type "
   "%1">, InGroup<EnumConversion>;
@@ -6794,6 +6806,10 @@ def warn_null_arg : Warning<
   InGroup<NonNull>;
 def warn_null_ret : Warning<
   "null returned from %select{function|method}0 that requires a non-null return value">,
+  InGroup<NonNull>;
+
+def warn_bool_ret : Warning<
+  "%0 returned from %select{function|method}1 that requires a boolean return value">,
   InGroup<NonNull>;
 
 // CHECK: returning address/reference of stack memory

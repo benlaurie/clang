@@ -58,6 +58,7 @@ add_clang_library(clangStaticAnalyzerCheckers
   PointerSubChecker.cpp
   PthreadLockChecker.cpp
   RetainCountChecker.cpp
+  ReturnBoolChecker.cpp
   ReturnPointerRangeChecker.cpp
   ReturnUndefChecker.cpp
   SimpleStreamChecker.cpp

@@ -959,6 +959,20 @@ def ReturnsNonNull : InheritableAttr {
   let Documentation = [Undocumented];
 }
 
+def ReturnsBool : InheritableAttr {
+  let Spellings = [GCC<"returns_bool">];
+  let Subjects = SubjectList<[ObjCMethod, FunctionLike], WarnDiag,
+                             "ExpectedFunctionOrMethod">;
+  let Documentation = [Undocumented];
+}
+
+def ReturnsTristate : InheritableAttr {
+  let Spellings = [GCC<"returns_tristate">];
+  let Subjects = SubjectList<[ObjCMethod, Function], WarnDiag,
+                             "ExpectedFunctionOrMethod">;
+  let Documentation = [Undocumented];
+}
+
 def AssumeAligned : InheritableAttr {
   let Spellings = [GCC<"assume_aligned">];
   let Subjects = SubjectList<[ObjCMethod, Function]>;
