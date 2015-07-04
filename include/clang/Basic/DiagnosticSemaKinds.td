@@ -2569,10 +2569,10 @@ def warn_impcast_string_literal_to_bool : Warning<
   InGroup<StringConversion>, DefaultIgnore;
 def warn_impcast_tristate_to_bool : Warning<
   "implicit conversion turns tristate into bool: %0 to %1">,
-  InGroup<TristateConversion>, DefaultIgnore;
+  InGroup<DangerousBoolConversion>, DefaultIgnore;
 def warn_impcast_nonbool_to_bool : Warning<
   "implicit conversion turns non-bool into bool: %0 to %1">,
-  InGroup<TristateConversion>, DefaultIgnore;
+  InGroup<DangerousBoolConversion>, DefaultIgnore;
 def warn_impcast_different_enum_types : Warning<
   "implicit conversion from enumeration type %0 to different enumeration type "
   "%1">, InGroup<EnumConversion>;

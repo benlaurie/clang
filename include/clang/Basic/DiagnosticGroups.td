@@ -44,7 +44,7 @@ def BoolConversion : DiagGroup<"bool-conversion", [PointerBoolConversion,
 def IntConversion : DiagGroup<"int-conversion">;
 def EnumConversion : DiagGroup<"enum-conversion">;
 def FloatConversion : DiagGroup<"float-conversion">;
-def TristateConversion : DiagGroup<"tristate-conversion">;
+def DangerousBoolConversion : DiagGroup<"dangerous-bool-conversion">;
 def EnumTooLarge : DiagGroup<"enum-too-large">;
 def UnsupportedNan : DiagGroup<"unsupported-nan">;
 def NonLiteralNullConversion : DiagGroup<"non-literal-null-conversion">;

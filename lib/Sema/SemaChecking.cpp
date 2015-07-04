@@ -12,9 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-//TMP
-#include <iostream>
-
 #include "clang/Sema/SemaInternal.h"
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/CharUnits.h"
@@ -6662,17 +6659,13 @@ void CheckImplicitConversion(Sema &S, Expr *E, QualType T,
 
   // Diagnose implicit casts to bool.
   if (Target->isSpecificBuiltinType(BuiltinType::Bool)) {
-    //std::cerr << "Pow\n";
-    //E->dump();
     if (isa<CallExpr>(E)) {
       FunctionDecl *fn = cast<FunctionDecl>(cast<CallExpr>(E)->getCalleeDecl());
       // FIXNE: handle other possibilities, e.g (x ? f : g)(y)
       if (!fn)
 	return;
-      //fn->dump();
       const AttrVec &Attrs = fn->getAttrs();
       if (hasSpecificAttr<ReturnsTristateAttr>(Attrs)) {
-	//std::cerr << "Oops\n";
 	DiagnoseImpCast(S, E, T, CC,
 			diag::warn_impcast_tristate_to_bool);
 	S.Diag(fn->getLocation(), diag::note_entity_declared_at)
@@ -6680,7 +6673,6 @@ void CheckImplicitConversion(Sema &S, Expr *E, QualType T,
 	return;
       }
       if (!hasSpecificAttr<ReturnsBoolAttr>(Attrs)) {
-	//std::cerr << "Oops\n";
 	DiagnoseImpCast(S, E, T, CC,
 			diag::warn_impcast_nonbool_to_bool);
 	S.Diag(fn->getLocation(), diag::note_entity_declared_at)
